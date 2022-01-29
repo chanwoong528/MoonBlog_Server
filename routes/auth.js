@@ -4,34 +4,53 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../model/User");
 
+const { isLoggedIn } = require("../config/middleware/userAuth");
+
 const router = new express.Router();
-//verifyJWT
-const verifyJWT = (req, res, next) => {
-  const token = req.headers["authorization"];
-  if (!token) {
+
+//generate New accToken based on refToken
+
+router.post("/token", async (req, res) => {
+  const { refToken } = req.body;
+  // console.log("/token [req.body]: ", refToken);
+  if (!refToken) {
     return res.status(401).send({ msg: "No Token Containing" });
   } else {
-    jwt.verify(token, "moonblogSecret", (err, decoded) => {
+    jwt.verify(refToken, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         return res
           .status(401)
-          .send({ isLoggedIn: false, msg: "Failed To Verify User" });
+          .send({ isLoggedIn: false, message: "Failed To Verify User" });
       } else {
-        req.userId = decoded.user.id;
-        next();
+        // console.log("docoded: ", decoded);
+        const newAccToken = jwt.sign(
+          { id: decoded.id },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: 5,
+          }
+        );
+        return res.status(201).send({ accToken: newAccToken });
       }
     });
   }
-};
+});
 
 //Login Get
-router.get("/", verifyJWT, async (req, res) => {
-  res.status(200).send({ msg: "Login Successful" });
+router.get("/", isLoggedIn, async (req, res) => {
+  const targetUser = await User.findById(req.auth.id);
+  const loggedInUser = {
+    id: targetUser._id.toString(),
+    email: targetUser.email,
+    name: targetUser.name,
+    admin: targetUser.admin,
+  };
+
+  return res.status(200).send({ isLoggedIn: true, user: loggedInUser });
 });
 
 //Login Post
 router.post("/", async (req, res) => {
-  console.log(req.body);
   const { email, password } = req.body;
   const targetUser = await User.findOne({ email: email });
   if (!targetUser) {
@@ -43,9 +62,15 @@ router.post("/", async (req, res) => {
         id: targetUser._id.toString(),
         email: targetUser.email,
         name: targetUser.name,
+        admin: targetUser.admin,
       };
-      const token = jwt.sign({ user }, "moonblogSecret", { expiresIn: 300 });
-      return res.status(200).send({ isLoggedIn: true, token, user });
+      const accToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: 5,
+      });
+      const refToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+      return res
+        .status(200)
+        .send({ isLoggedIn: true, accToken, refToken, user });
     } else {
       return res.status(401).send({ msg: "Check your Email or Password" });
     }
