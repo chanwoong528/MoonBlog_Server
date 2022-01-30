@@ -1,14 +1,21 @@
 const express = require("express");
+const {
+  isLoggedIn,
+  isLoggedInAdmin,
+} = require("../config/middleware/userAuth");
 
 const Topic = require("../model/Topic");
 const router = new express.Router();
 
-router.post("/topic", async (req, res) => {
+router.post("/topic", isLoggedInAdmin, async (req, res) => {
   const curDate = new Date().toISOString().slice(0, 10);
   const { topic, description } = req.body;
-  console.log(req.body);
-  console.log(curDate);
-  const newTopic = new Topic({ topic, description, created_at: curDate });
+  const newTopic = new Topic({
+    topic,
+    description,
+    created_at: curDate,
+    created_user: req.auth.id,
+  });
   await newTopic.save((err) => {
     if (err) {
       console.log(err);
@@ -18,6 +25,7 @@ router.post("/topic", async (req, res) => {
     }
   });
 });
+
 router.get("/topic", async (req, res) => {
   const topics = await Topic.find({});
   if (topics) {

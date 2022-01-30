@@ -1,16 +1,28 @@
 const express = require("express");
+
 const Post = require("../model/Post");
+
+const {
+  isLoggedIn,
+  isLoggedInAdmin,
+} = require("../config/middleware/userAuth");
+
 const router = new express.Router();
 
-router.post("/", async (req, res) => {
-  const user = "Moon";
-  const { title, body } = req.body;
+//endpoint with "/post"
+
+router.post("/", isLoggedInAdmin, async (req, res) => {
+  const { id } = req.auth;
+  console.log(req.auth);
+
+  const { title, body, postType } = req.body;
   const createdDate = new Date().toISOString();
   const newPost = new Post({
     title,
     body,
-    author: user,
+    author: id,
     create_at: createdDate,
+    postType,
   });
   await newPost.save((err) => {
     if (err) {
@@ -23,7 +35,7 @@ router.post("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   const posts = await Post.find({});
-  console.log(posts);
+  // console.log(posts);
   if (posts) {
     res.status(200).send({ msg: "Successful to get Posts", posts });
   }

@@ -9,7 +9,6 @@ const { isLoggedIn } = require("../config/middleware/userAuth");
 const router = new express.Router();
 
 //generate New accToken based on refToken
-
 router.post("/token", async (req, res) => {
   const { refToken } = req.body;
   // console.log("/token [req.body]: ", refToken);
@@ -22,9 +21,8 @@ router.post("/token", async (req, res) => {
           .status(401)
           .send({ isLoggedIn: false, message: "Failed To Verify User" });
       } else {
-        // console.log("docoded: ", decoded);
         const newAccToken = jwt.sign(
-          { id: decoded.id },
+          { id: decoded.id, admin: decoded.admin },
           process.env.JWT_SECRET,
           {
             expiresIn: 5,
@@ -64,10 +62,17 @@ router.post("/", async (req, res) => {
         name: targetUser.name,
         admin: targetUser.admin,
       };
-      const accToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: 5,
-      });
-      const refToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+      const accToken = jwt.sign(
+        { id: user.id, admin: user.admin },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: 5,
+        }
+      );
+      const refToken = jwt.sign(
+        { id: user.id, admin: user.admin },
+        process.env.JWT_SECRET
+      );
       return res
         .status(200)
         .send({ isLoggedIn: true, accToken, refToken, user });
