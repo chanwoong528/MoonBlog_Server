@@ -37,7 +37,16 @@ router.get("/", async (req, res) => {
   const posts = await Post.find({});
   // console.log(posts);
   if (posts) {
-    res.status(200).send({ msg: "Successful to get Posts", posts });
+    return res.status(200).send({ msg: "Successful to get Posts", posts });
+  }
+});
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const post = await Post.findById(id);
+  if (post) {
+    return res.status(200).send({ msg: "Successful to get Post", post });
+  } else {
+    return res.status(404).send({ msg: "no Post Found" });
   }
 });
 
