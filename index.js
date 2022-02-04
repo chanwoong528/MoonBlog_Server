@@ -9,6 +9,7 @@ const userRoute = require("./routes/user");
 const postRoute = require("./routes/post");
 const adminRoute = require("./routes/admin");
 const authRoute = require("./routes/auth");
+const commentRoute = require("./routes/comment");
 //Routes
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -37,7 +38,7 @@ app.use("/user", userRoute);
 app.use("/post", postRoute);
 app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
-
+app.use("/comment", commentRoute);
 //=========================Routes=======================
 //DB Connection
 

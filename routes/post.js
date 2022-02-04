@@ -40,9 +40,13 @@ router.get("/", async (req, res) => {
     return res.status(200).send({ msg: "Successful to get Posts", posts });
   }
 });
+//SinglePost with comments
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  const post = await Post.findById(id);
+  const post = await Post.findById(id).populate({
+    path: "comments",
+    populate: [{ path: "author", select: "name email" }],
+  });
   if (post) {
     return res.status(200).send({ msg: "Successful to get Post", post });
   } else {
