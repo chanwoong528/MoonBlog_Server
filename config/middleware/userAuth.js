@@ -27,7 +27,7 @@ function isLoggedInAdmin(req, res, next) {
   const token = req.headers["x-access-token"];
 
   if (!token) {
-    return res.status(402).send({ msg: "No Token Containing" });
+    return res.status(401).send({ msg: "No Token Containing" });
   } else {
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
@@ -35,7 +35,7 @@ function isLoggedInAdmin(req, res, next) {
           return res.status(408).send({ msg: "accToken expired!" });
         } else {
           return res
-            .status(402)
+            .status(401)
             .send({ isLoggedIn: false, msg: "Failed To Verify User" });
         }
       } else {
