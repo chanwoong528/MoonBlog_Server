@@ -17,10 +17,9 @@ router.post("/", isLoggedInAdmin, async (req, res) => {
   const createdDate = new Date().toISOString();
   console.log(postType);
   if (postType === "0") {
-    return res.status(400).send({ msg: "Unable to create Post" });
-  }
-  if (body.length < 3 || title.length < 3) {
-    return res.status(400).send({ msg: "Unable to create Post" });
+    return res
+      .status(400)
+      .send({ msg: "Unable to create Post with postType = 0" });
   }
   try {
     const newPost = new Post({
@@ -35,6 +34,35 @@ router.post("/", isLoggedInAdmin, async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).send({ msg: "Unable to create Post" });
+  }
+});
+router.delete("/:postId", isLoggedInAdmin, async (req, res) => {
+  const postId = req.params.postId;
+  try {
+    const deletePost = await Post.findByIdAndDelete(postId);
+    if (!deletePost) {
+      //TODO: Winston Logger;
+      return res.status(404).send({ msg: "No post to Delete" });
+    }
+    return res.status(201).send({ msg: "Delete post Successful" });
+  } catch (error) {
+    return res.status(500).send({ msg: "Unable to Delete Post" });
+  }
+});
+router.patch("/:postId", isLoggedInAdmin, async (req, res) => {
+  const postId = req.params.postId;
+  const body = req.body.body;
+
+  try {
+    const updatePost = await Post.findByIdAndUpdate(postId, { body: body });
+    if (!updatePost) {
+      return res.status(404).send({ msg: "Target Post to update not found" });
+    }
+    //TODO: winston Logger
+
+    return res.status(201).send({ msg: "Update Post Successful", body: body });
+  } catch (error) {
+    return res.status(500).send({ msg: "Unable to Update Post" });
   }
 });
 router.get("/", async (req, res) => {

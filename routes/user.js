@@ -5,6 +5,7 @@ const User = require("../model/User");
 const router = new express.Router();
 
 router.post("/", async (req, res) => {
+  console.log("Register User:", req.body);
   const { email, name } = req.body;
   const salt = await bcrypt.genSalt(10); // have to hide this
   const password = await bcrypt.hash(req.body.password, salt);
@@ -19,7 +20,11 @@ router.post("/", async (req, res) => {
   });
   await newUser.save((err) => {
     if (err) {
-      console.log(err);
+      console.log(err.code);
+      if (err.code === 11000) {
+        //Unique Key Violation.
+        return res.status(400).send({ msg: "User Already Exist with Email" });
+      }
       return res.status(500).send({ msg: "Unable to create User" });
     } else {
       return res.status(200).send({ msg: "User Created!", user: newUser });

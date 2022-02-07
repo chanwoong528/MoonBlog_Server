@@ -1,7 +1,10 @@
 const express = require("express");
 const { isLoggedIn } = require("../config/middleware/userAuth");
 const Comment = require("../model/Comment");
+const mongoose = require("mongoose");
+
 const Post = require("../model/Post");
+
 const router = new express.Router();
 
 //create comment
@@ -14,6 +17,9 @@ router.post("/:postId", isLoggedIn, async (req, res) => {
 
   if (content.length > 150) {
     return res.status(413).send({ msg: "Unable to create Comment Too long!" });
+  }
+  if (content.length < 1) {
+    return res.status(413).send({ msg: "Unable to create Comment Too Short!" });
   }
   try {
     const newComment = new Comment({
@@ -33,6 +39,32 @@ router.post("/:postId", isLoggedIn, async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).send({ msg: "Unable to create Comment" });
+  }
+});
+router.delete("/:postId/:commentId", isLoggedIn, async (req, res) => {
+  const postId = req.params.postId;
+  const commentId = req.params.commentId;
+  const userId = req.auth.id;
+  //TODO: Winston Logger;
+  try {
+    const deleteComment = await Comment.findOneAndDelete({
+      _id: commentId,
+      author: userId,
+    });
+
+    if (!deleteComment) {
+      return res.status(404).send({ msg: "No Comment Found" });
+    }
+    const targetPost = await Post.findByIdAndUpdate(postId, {
+      $pull: { comments: commentId },
+    });
+    if (!targetPost) {
+      return res.status(404).send({ msg: "No post Found" });
+    }
+    return res.status(202).send({ msg: "Comment Deleted" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ msg: "Unable to delete Comment" });
   }
 });
 
