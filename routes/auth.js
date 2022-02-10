@@ -16,6 +16,7 @@ router.post("/token", async (req, res) => {
     return res.status(401).send({ msg: "No Token Containing" });
   } else {
     jwt.verify(refToken, process.env.JWT_SECRET, (err, decoded) => {
+      console.log(decoded);
       if (err) {
         return res
           .status(401)
@@ -25,7 +26,7 @@ router.post("/token", async (req, res) => {
           { id: decoded.id, admin: decoded.admin },
           process.env.JWT_SECRET,
           {
-            expiresIn: 5,
+            expiresIn: 300,
           }
         );
         return res.status(201).send({ accToken: newAccToken });
@@ -62,11 +63,12 @@ router.post("/", async (req, res) => {
         name: targetUser.name,
         admin: targetUser.admin,
       };
+
       const accToken = jwt.sign(
         { id: user.id, admin: user.admin },
         process.env.JWT_SECRET,
         {
-          expiresIn: 5,
+          expiresIn: 300,
         }
       );
       const refToken = jwt.sign(

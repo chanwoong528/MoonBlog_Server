@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 
 function isLoggedIn(req, res, next) {
   const token = req.headers["x-access-token"];
-
   if (!token) {
     return res.status(401).send({ msg: "No Token Containing" });
   } else {
@@ -29,7 +28,7 @@ function isLoggedInAdmin(req, res, next) {
   if (!token) {
     return res.status(401).send({ msg: "No Token Containing" });
   } else {
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
           return res.status(408).send({ msg: "accToken expired!" });
@@ -39,7 +38,7 @@ function isLoggedInAdmin(req, res, next) {
             .send({ isLoggedIn: false, msg: "Failed To Verify User" });
         }
       } else {
-        req.auth = decoded;
+        req.auth = decode;
         if (req.auth.admin) {
           next();
         } else {

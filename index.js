@@ -10,6 +10,7 @@ const postRoute = require("./routes/post");
 const adminRoute = require("./routes/admin");
 const authRoute = require("./routes/auth");
 const commentRoute = require("./routes/comment");
+const fileRoute = require("./routes/file");
 //Routes
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -18,7 +19,7 @@ app.use(express.static("public"));
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://moonblogjs.netlify.app"],
+    origin: ["http://localhost:3001", "https://moonblogjs.netlify.app"],
     credentials: true,
     methods: ["HEAD", "POST", "PUT", "GET", "PATCH", "DELETE"],
   })
@@ -39,8 +40,8 @@ app.use("/post", postRoute);
 app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
 app.use("/comment", commentRoute);
+app.use("/file", fileRoute);
 //=========================Routes=======================
-//DB Connection
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
@@ -57,6 +58,10 @@ db.on("error", function (err) {
 
 //Server Up
 app.listen(PORT, (err) => {
-  if (err) console.log(`Unable to run Server on ${PORT}=> ${err}`);
-  else console.log(`Server Up: ${PORT}`);
+  if (err) {
+    console.log(`Unable to run Server on ${PORT}=> ${err}`);
+  } else {
+    console.log(process.env.MONGO_URL);
+    console.log(`Server Up: ${PORT}`);
+  }
 });

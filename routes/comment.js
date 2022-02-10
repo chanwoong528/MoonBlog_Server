@@ -15,7 +15,7 @@ router.post("/:postId", isLoggedIn, async (req, res) => {
   const postId = req.params.postId;
   const userId = req.auth.id;
 
-  if (content.length > 150) {
+  if (content.length > 500) {
     return res.status(413).send({ msg: "Unable to create Comment Too long!" });
   }
   if (content.length < 1) {
