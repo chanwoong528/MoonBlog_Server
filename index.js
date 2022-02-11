@@ -11,6 +11,7 @@ const adminRoute = require("./routes/admin");
 const authRoute = require("./routes/auth");
 const commentRoute = require("./routes/comment");
 const fileRoute = require("./routes/file");
+const projectRoute = require("./routes/project");
 //Routes
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -19,7 +20,7 @@ app.use(express.static("public"));
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://moonblogjs.netlify.app"],
+    origin: ["http://localhost:3001", "https://moonblogjs.netlify.app"],
     credentials: true,
     methods: ["HEAD", "POST", "PUT", "GET", "PATCH", "DELETE"],
   })
@@ -29,10 +30,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 //=======test build=====
-app.use(express.static(path.resolve(__dirname, "./build")));
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./build", "index.html"));
-});
+// app.use(express.static(path.resolve(__dirname, "./build")));
+// app.get("/", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "./build", "index.html"));
+// });
 //=======test build=====
 //=========================Routes=======================
 app.use("/user", userRoute);
@@ -41,6 +42,7 @@ app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
 app.use("/comment", commentRoute);
 app.use("/file", fileRoute);
+app.use("/project", projectRoute);
 //=========================Routes=======================
 
 mongoose.connect(process.env.MONGO_URL, {
