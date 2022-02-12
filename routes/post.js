@@ -27,6 +27,7 @@ router.post("/", isLoggedInAdmin, async (req, res) => {
       body,
       author: id,
       create_at: createdDate,
+      update_at: createdDate,
       postType,
     });
     await newPost.save();
@@ -52,15 +53,22 @@ router.delete("/:postId", isLoggedInAdmin, async (req, res) => {
 router.patch("/:postId", isLoggedInAdmin, async (req, res) => {
   const postId = req.params.postId;
   const body = req.body.body;
-
+  const createdDate = new Date().toISOString();
   try {
-    const updatePost = await Post.findByIdAndUpdate(postId, { body: body });
+    const updatePost = await Post.findByIdAndUpdate(postId, {
+      body: body,
+      update_at: createdDate,
+    });
     if (!updatePost) {
       return res.status(404).send({ msg: "Target Post to update not found" });
     }
     //TODO: winston Logger
 
-    return res.status(201).send({ msg: "Update Post Successful", body: body });
+    return res.status(201).send({
+      msg: "Update Post Successful",
+      body: body,
+      update_at: createdDate,
+    });
   } catch (error) {
     return res.status(500).send({ msg: "Unable to Update Post" });
   }

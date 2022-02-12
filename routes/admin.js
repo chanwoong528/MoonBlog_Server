@@ -3,6 +3,7 @@ const {
   isLoggedIn,
   isLoggedInAdmin,
 } = require("../config/middleware/userAuth");
+const Comment = require("../model/Comment");
 
 const Post = require("../model/Post");
 const Topic = require("../model/Topic");
@@ -22,7 +23,7 @@ router.post("/topic", isLoggedInAdmin, async (req, res) => {
       console.log(err);
       return res.status(500).send({ msg: "Unable to create Topic" });
     } else {
-      return res.status(201).send({ msg: "Topic Created!" });
+      return res.status(201).send({ msg: "Topic Created!", newTopic });
     }
   });
 });
@@ -39,17 +40,46 @@ router.delete("/topic/:id", isLoggedInAdmin, async (req, res) => {
 
   try {
     const deleteTopic = await Topic.findOneAndDelete({ _id: id });
-    console.log(deleteTopic);
+    // console.log(deleteTopic);
     if (!deleteTopic) {
       return res.status(404).send({ msg: "No topic to Delete" });
     }
-    const deleteManyPost = await Post.deleteMany({
-      postType: { $exist: fale },
-    });
-    console.log(deleteManyPost);
+    const deleteResult = await DeleteAllPosts(id);
+    // console.log(deleteResult);
+    return res
+      .status(200)
+      .send({ msg: "Delete Done [topic, posts, comments]" });
   } catch (error) {
     console.log(error);
+    return res
+      .send(500)
+      .send({ msg: "Unable to Delete [topic, posts, comments]" });
   }
 });
-
+//to be Moved to repository
+async function DeleteAllPosts(topicId) {
+  try {
+    const posts = await Post.find({ postType: topicId });
+    const deleteManyPost = await Post.deleteMany({
+      postType: topicId,
+    });
+    posts.forEach(async (post) => {
+      await deleteAllComments(post._id);
+    });
+    return deleteManyPost;
+  } catch (error) {
+    console.log(error);
+    return new Error("Unable to Delete Posts");
+  }
+}
+//to be Moved to repository
+async function deleteAllComments(postId) {
+  try {
+    const deleteManyComments = await Comment.deleteMany({ postId });
+    return deleteManyComments;
+  } catch (error) {
+    console.log(error);
+    return new Error("Unable to Delete Comments");
+  }
+}
 module.exports = router;

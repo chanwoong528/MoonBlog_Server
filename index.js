@@ -20,13 +20,17 @@ app.use(express.static("public"));
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "https://moonblogjs.netlify.app"],
+    origin: [
+      "http://localhost:3001",
+      "http://localhost:3000",
+      "https://moonblogjs.netlify.app",
+    ],
     credentials: true,
     methods: ["HEAD", "POST", "PUT", "GET", "PATCH", "DELETE"],
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 
 //=======test build=====
@@ -36,7 +40,7 @@ app.use(cookieParser());
 // });
 //=======test build=====
 //=========================Routes=======================
-app.use("/user", userRoute);
+https: app.use("/user", userRoute);
 app.use("/post", postRoute);
 app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
@@ -63,7 +67,6 @@ app.listen(PORT, (err) => {
   if (err) {
     console.log(`Unable to run Server on ${PORT}=> ${err}`);
   } else {
-    console.log(process.env.MONGO_URL);
     console.log(`Server Up: ${PORT}`);
   }
 });

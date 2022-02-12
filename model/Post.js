@@ -11,6 +11,7 @@ const postSchema = new mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: "User", require: true },
   views: { type: Number, required: true, default: 0 },
   create_at: { type: String, required: true },
+  update_at: { type: String, required: true },
   comments: [
     {
       type: mongoose.Schema.Types.ObjectId,
