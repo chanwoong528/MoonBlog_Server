@@ -40,7 +40,7 @@ app.use(cookieParser());
 // });
 //=======test build=====
 //=========================Routes=======================
-https: app.use("/user", userRoute);
+app.use("/user", userRoute);
 app.use("/post", postRoute);
 app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
