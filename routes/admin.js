@@ -27,6 +27,27 @@ router.post("/topic", isLoggedInAdmin, async (req, res) => {
     }
   });
 });
+router.patch("/topic/:id", isLoggedInAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { newTitle, newDesc } = req.body;
+  try {
+    const updateTopic = await Topic.findByIdAndUpdate(id, {
+      topic: newTitle,
+      description: newDesc,
+    });
+    if (!updateTopic) {
+      return res.status(404).send({ msg: "Target Topic to update not found" });
+    }
+    return res.status(200).send({
+      msg: "Update Topic Successful",
+      topic: newTitle,
+      description: newDesc,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ msg: "Uable to Update Topic. " });
+  }
+});
 
 router.get("/topic", async (req, res) => {
   const topics = await Topic.find({});

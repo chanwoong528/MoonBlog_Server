@@ -70,6 +70,7 @@ router.patch("/:postId", isLoggedInAdmin, async (req, res) => {
       update_at: createdDate,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).send({ msg: "Unable to Update Post" });
   }
 });
